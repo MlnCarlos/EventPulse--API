@@ -3,54 +3,70 @@ package com.uniremington.eventpulse.service;
 import com.uniremington.eventpulse.dto.EventoRequestDTO;
 import com.uniremington.eventpulse.dto.EventoResponseDTO;
 import com.uniremington.eventpulse.model.Evento;
+import com.uniremington.eventpulse.repository.EventoRepository;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class EventoService {
 
-    private final Map<Long, Evento> baseDeDatos = new HashMap<>();
-    private final AtomicLong contadorId = new AtomicLong(1);
+    private final EventoRepository eventoRepository;
 
-    public EventoService() {
-        guardarEventoInterno(new Evento(contadorId.getAndIncrement(), "DevOps Summit", "Tecnologia", LocalDate.of(2026, 10, 15), 300, 120.0));
-        guardarEventoInterno(new Evento(contadorId.getAndIncrement(), "Java Cloud Conf", "Tecnologia", LocalDate.of(2026, 11, 20), 500, 150.0));
-        guardarEventoInterno(new Evento(contadorId.getAndIncrement(), "Festival Indie Sound", "Musica", LocalDate.of(2026, 12, 5), 1200, 80.0));
-    }
-
-    private void guardarEventoInterno(Evento evento) {
-        baseDeDatos.put(evento.getId(), evento);
-    }
-
-    public List<EventoResponseDTO> listarTodos(String categoria) {
-        return baseDeDatos.values().stream()
-                .filter(e -> categoria == null || e.getCategoria().equalsIgnoreCase(categoria))
-                .map(this::mapearADto)
-                .toList();
-    }
-
-    public Optional<EventoResponseDTO> buscarPorId(Long id) {
-        return Optional.ofNullable(baseDeDatos.get(id)).map(this::mapearADto);
+    public EventoService(EventoRepository eventoRepository) {
+        this.eventoRepository = eventoRepository;
     }
 
     public EventoResponseDTO crearEvento(EventoRequestDTO dto) {
-        Long nuevoId = contadorId.getAndIncrement();
         Evento nuevoEvento = new Evento(
-                nuevoId,
+                null,
                 dto.nombre(),
                 dto.categoria(),
                 dto.fecha(),
                 dto.capacidadMaxima(),
                 dto.precioEntrada()
         );
-        baseDeDatos.put(nuevoId, nuevoEvento);
-        return mapearADto(nuevoEvento);
+        Evento guardado = eventoRepository.save(nuevoEvento);
+        return mapearADTO(guardado);
     }
 
-    private EventoResponseDTO mapearADto(Evento evento) {
+    public List<EventoResponseDTO> listarTodos(String categoria) {
+        List<Evento> eventos;
+        if (categoria != null && !categoria.isBlank()) {
+            eventos = eventoRepository.findByCategoriaIgnoreCase(categoria);
+        } else {
+            eventos = eventoRepository.findAll();
+        }
+        return eventos.stream().map(this::mapearADTO).toList();
+    }
+
+    public Optional<EventoResponseDTO> buscarPorId(Long id) {
+        return eventoRepository.findById(id).map(this::mapearADTO);
+    }
+
+    public Optional<EventoResponseDTO> actualizarEvento(Long id, EventoRequestDTO dto) {
+        return eventoRepository.findById(id).map(eventoExistente -> {
+            eventoExistente.setNombre(dto.nombre());
+            eventoExistente.setCategoria(dto.categoria());
+            eventoExistente.setFecha(dto.fecha());
+            eventoExistente.setCapacidadMaxima(dto.capacidadMaxima());
+            eventoExistente.setPrecioEntrada(dto.precioEntrada());
+            
+            Evento actualizado = eventoRepository.save(eventoExistente);
+            return mapearADTO(actualizado);
+        });
+    }
+
+    public boolean eliminarEvento(Long id) {
+        if (eventoRepository.existsById(id)) {
+            eventoRepository.deleteById(id);
+            return true;
+        }
+        return false;
+    }
+
+    private EventoResponseDTO mapearADTO(Evento evento) {
         return new EventoResponseDTO(
                 evento.getId(),
                 evento.getNombre(),

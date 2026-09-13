@@ -38,4 +38,21 @@ public class EventoController {
         EventoResponseDTO creado = eventoService.crearEvento(requestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(creado);
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<EventoResponseDTO> actualizarEvento(
+            @PathVariable Long id,
+            @RequestBody EventoRequestDTO requestDTO) {
+        return eventoService.actualizarEvento(id, requestDTO)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminarEvento(@PathVariable Long id) {
+        if (eventoService.eliminarEvento(id)) {
+            return ResponseEntity.noContent().build(); // 204 No Content
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // 404 Not Found
+    }
 }

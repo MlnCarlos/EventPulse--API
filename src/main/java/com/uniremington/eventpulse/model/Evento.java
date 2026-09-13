@@ -1,13 +1,29 @@
 package com.uniremington.eventpulse.model;
 
+import jakarta.persistence.*;
 import java.time.LocalDate;
 
+@Entity
+@Table(name = "eventos")
 public class Evento {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false, length = 100)
     private String nombre;
+
+    @Column(nullable = false, length = 50)
     private String categoria;
+
+    @Column(nullable = false)
     private LocalDate fecha;
+
+    @Column(nullable = false)
     private Integer capacidadMaxima;
+
+    @Column(nullable = false)
     private Double precioEntrada;
 
     public Evento() {}

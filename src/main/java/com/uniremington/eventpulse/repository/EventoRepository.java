@@ -1,0 +1,12 @@
+package com.uniremington.eventpulse.repository;
+
+import com.uniremington.eventpulse.model.Evento;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public interface EventoRepository extends JpaRepository<Evento, Long> {
+    List<Evento> findByCategoriaIgnoreCase(String categoria);
+}
