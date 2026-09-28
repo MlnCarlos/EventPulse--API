@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface EventoRepository extends JpaRepository<Evento, Long> {
-    List<Evento> findByCategoriaIgnoreCase(String categoria);
+    List<Evento> findByCategoriaNombreIgnoreCase(String nombreCategoria);
 }

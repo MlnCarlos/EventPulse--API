@@ -1,6 +1,6 @@
-# EventPulse API - Gestión de Eventos con Persistencia JPA
+# EventPulse API - Integración, Persistencia MySQL y Observabilidad
 
-API REST desarrollada con Spring Boot para la gestión integral de eventos, incorporando persistencia relacional con JPA e Hibernate y operaciones CRUD completas. Este proyecto corresponde a la **Actividad Colaborativa #2** del curso **Lenguaje de Programación III**.
+API REST desarrollada con Spring Boot para la gestión y monitoreo de eventos culturales y tecnológicos. Este proyecto corresponde a la **Actividad Colaborativa #3** del curso **Lenguaje de Programación III**.
 
 ---
 
@@ -8,37 +8,37 @@ API REST desarrollada con Spring Boot para la gestión integral de eventos, inco
 
 * **Asignatura:** Lenguaje de Programación III
 * **Institución:** Corporación Universitaria Remington (Modalidad Virtual)
-* **Docente:** Leli Liliana Díaz Izquierdo[cite: 3]
-* **Estudiante:** Carlos Alfredo Loaiza Molina[cite: 1, 3]
-* **Contexto de la solución:** Plataforma para el registro, consulta, actualización y control de aforo para eventos culturales, tecnológicos o a necesidad.
+* **Docente:** Leli Liliana Díaz Izquierdo
+* **Estudiante:** Carlos Alfredo Loaiza Molina
+* **Contexto de la Solución:** Backend para registro de eventos, control de categorías relacionales, pronóstico climático en tiempo real y telemetría operativa para monitoreo en producción.
 
 ---
 
 ## Tecnologías Utilizadas
 
-* **Java 17**[cite: 4]
-* **Spring Boot 4.x** (Spring Web, Spring Data JPA)[cite: 4]
-* **Hibernate** (Motor ORM)
-* **Base de datos H2** (Motor relacional en memoria con consola interactiva)
-* **Maven** (Gestor de dependencias y construcción)[cite: 4]
-* **Postman** (Pruebas funcionales de endpoints)
+* **Java 17**
+* **Spring Boot 4.x** (Spring Web MVC, Spring Data JPA, Spring Boot Actuator)
+* **Hibernate** (Mapeo Objeto-Relacional)
+* **MySQL 8.x** (Motor de persistencia relacional)
+* **Micrometer & Prometheus** (Métricas de observabilidad)
+* **Open-Meteo REST API** (Servicio externo meteorológico consumido mediante `RestClient`)
+* **Maven** (Gestión de dependencias)
 
 ---
 
-## Estructura y Persistencia
+## Entidades y Relación
 
-El proyecto implementa una arquitectura desacoplada por capas:
-* **Entidad (`Evento`):** Mapeada con JPA (`@Entity`, `@Table`, `@Id`, `@GeneratedValue`) con atributos de nombre, categoría, fecha, capacidad máxima y precio[cite: 3].
-* **Repositorio (`EventoRepository`):** Extiende de `JpaRepository` e implementa una consulta derivada personalizada (`findByCategoriaIgnoreCase`).
-* **Capa DTO:** Implementada con `Java Records` (`EventoRequestDTO` y `EventoResponseDTO`) para asegurar inmutabilidad y separar el contrato de transporte del modelo de dominio[cite: 6, 7].
-* **Controlador (`EventoController`):** Expone las rutas REST gestionando los códigos de respuesta semánticos (`200 OK`, `201 Created`, `204 No Content`, `404 Not Found`).
+El modelo de datos implementa una relación bidireccional Many-to-One:
+* **`Categoria` (`1`):** Define las agrupaciones temáticas (`id`, `nombre`, `descripcion`).
+* **`Evento` (`N`):** Contiene la información del evento (`id`, `nombre`, `fecha`, `capacidadMaxima`, `precioEntrada`, `latitud`, `longitud`).
+* **Relación:** `@ManyToOne` en la entidad `Evento` mapeando la clave foránea `categoria_id`.
 
 ---
 
-## Instrucciones para Ejecutar el Proyecto
+## Configuración de MySQL
 
-1. **Clonar el repositorio:**
-   ```bash
-   git clone [https://github.com/tu-usuario/eventpulse-api.git](https://github.com/tu-usuario/eventpulse-api.git)
-   cd eventpulse-api
-   ./mvnw spring-boot:run
+La aplicación utiliza variables de entorno para proteger las credenciales de acceso:
+
+1. Crear la base de datos en MySQL:
+   ```sql
+   CREATE DATABASE IF NOT EXISTS eventpulsedb;

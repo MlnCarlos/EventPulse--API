@@ -5,8 +5,10 @@ import java.time.LocalDate;
 public record EventoResponseDTO(
     Long id,
     String nombre,
-    String categoria,
+    String categoriaNombre,
     LocalDate fecha,
     Integer capacidadMaxima,
-    Double precioEntrada
+    Double precioEntrada,
+    Double latitud,
+    Double longitud
 ) {}
